@@ -4,8 +4,9 @@
 #
 # This file is in the public domain.
 #
-# Made by @jschauma - hit me up if you want to golf it
-# down, but simple shell commands only, ok?
+# Made by jschauma@netmeister.org - hit me up if you
+# want to golf it down, but simple shell commands
+# only, ok?
 #
 # Examples:
 # IPv4
@@ -25,7 +26,7 @@
 #
 # $ ipv6ToBinary 2001:4998:124:1507::f000
 # 00100000000000010100100110011000000000010010010000010101000001110000000000000000000000000000000000000000000000001111000000000000
-# $ binaryToIPv6 00100000000000010100100110011000000000010010010000010101000001110000000000000000000000000000000000000000000000001111000000000000
+# # $ binaryToIPv6 00100000000000010100100110011000000000010010010000010101000001110000000000000000000000000000000000000000000000001111000000000000
 # 2001:4998:124:1507::F000
 
 binaryToDec() {
@@ -34,6 +35,14 @@ binaryToDec() {
 		read b;
 	fi;
 	echo "ibase=2; $b" | bc
+}
+
+binaryToHex() {
+	b="$@";
+	if [ -z "$b" ]; then
+		read b;
+	fi;
+	echo "obase=16; ibase=2; $b" | bc
 }
 
 binaryToOct() {
@@ -71,6 +80,16 @@ decToBinary() {
 	echo "obase=2; $d" | bc
 }
 
+decToHex() {
+	d="$@";
+	if [ -z "$d" ]; then
+		read d;
+	fi;
+	echo "obase=16; $d" | bc |				\
+		rev | sed -e 's/\(..\)/\1 /g' |			\
+		rev | sed -e 's/^\(.\) /0\1 /' -e 's/^ //'
+}
+
 decToIPv4() {
 	d="$@";
 	if [ -z "$d" ]; then
@@ -88,11 +107,28 @@ decToIPv6() {
 	binaryToIPv6 $(printf "%0128s" $(decToBinary "${d}"))
 }
 
+hexToBinary() {
+	hex="$@";
+	if [ -z "$hex" ]; then
+		read hex;
+	fi;
+	hex=$(echo $hex | tr '[a-z]' '[A-Z]')
+	echo "obase=2; ibase=16; $hex" | bc
+}
+
+hexToDec() {
+	hex="$@";
+	if [ -z "$hex" ]; then
+		read hex;
+	fi;
+	hex=$(echo $hex | tr '[a-z]' '[A-Z]')
+	echo "ibase=16; $hex" | bc
+}
 
 hexToIPv4() {
 	ip="$@";
-	if [ -z "$ip" ];
-		then read ip;
+	if [ -z "$ip" ]; then
+		read ip;
 	fi;
 	echo "$ip" | 						\
 		tr -d '[:space:]' |				\
@@ -104,8 +140,8 @@ hexToIPv4() {
 
 ipv4ToBinary() {
 	ip="$@";
-	if [ -z "$ip" ];
-		then read ip;
+	if [ -z "$ip" ]; then
+		read ip;
 	fi;
 	echo "$ip" | tr . '\n' | 				\
 		( echo obase=2; xargs -n 1; ) | bc |		\
@@ -115,16 +151,16 @@ ipv4ToBinary() {
 
 ipv4ToDec() {
 	ip="$@";
-	if [ -z "$ip" ];
-		then read ip;
+	if [ -z "$ip" ]; then
+		read ip;
 	fi;
 	ipv4ToBinary "${ip}" | binaryToDec
 }
 
 ipv4ToHex() {
 	ip="$@";
-	if [ -z "$ip" ];
-		then read ip;
+	if [ -z "$ip" ]; then
+		read ip;
 	fi;
 	echo "$ip" | tr . '\n' |				\
 		( echo obase=16; xargs -n 1; ) | bc |		\
@@ -134,16 +170,16 @@ ipv4ToHex() {
 
 ipv4ToOct() {
 	ip="$@";
-	if [ -z "$ip" ];
-		then read ip;
+	if [ -z "$ip" ]; then
+		read ip;
 	fi;
 	ipv4ToBinary "${ip}" | binaryToOct
 }
 
 ipv6ToDec() {
 	ip="$@";
-	if [ -z "$ip" ];
-		then read ip;
+	if [ -z "$ip" ]; then
+		read ip;
 	fi;
 	export BC_LINE_LENGTH=128
 	ipv6ToBinary "${ip}" | binaryToDec
@@ -151,8 +187,8 @@ ipv6ToDec() {
 
 ipv6ToBinary() {
 	ip="$@";
-	if [ -z "$ip" ];
-		then read ip;
+	if [ -z "$ip" ]; then
+		read ip;
 	fi;
 	echo "$ip" | 							\
 		sed -e "s/::/:$(jot -b 0000 $(( 8 - $(echo "${ip}" | tr ':' '\n' | grep . | wc -l) )) 0 0 2>/dev/null | \
@@ -166,8 +202,8 @@ ipv6ToBinary() {
 
 ipv6ToDec() {
 	ip="$@";
-	if [ -z "$ip" ];
-		then read ip;
+	if [ -z "$ip" ]; then 
+		read ip;
 	fi;
 	export BC_LINE_LENGTH=128
 	ipv6ToBinary "${ip}" | binaryToDec
