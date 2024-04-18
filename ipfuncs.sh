@@ -58,7 +58,7 @@ binaryToIPv4() {
 	if [ -z "$ip" ]; then
 		read ip;
 	fi;
-	echo "$ip" | 						\
+	printf "%032s" "$ip" | 					\
 		sed 's/\(.\{8\}\)/\1 /g' | tr ' ' '\n' |	\
 		( echo ibase=2; xargs -n 1 ) | bc |		\
 		tr '\n' '.' | sed -e 's/\.$//';
