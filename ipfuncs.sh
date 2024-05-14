@@ -131,7 +131,7 @@ hexToIPv4() {
 		read ip;
 	fi;
 	echo "$ip" | 						\
-		tr -d '[:space:]' |				\
+		tr -d '[:space:]' | tr -d ':' |			\
 		tr '[a-z]' '[A-Z]' |				\
 		sed 's/\(.\{2\}\)/\1 /g' | tr ' ' '\n' |	\
 		( echo ibase=16; xargs -n 1 ) | bc |	 	\
